@@ -33,10 +33,13 @@
                 </div>
             </li>*@
         <li class="user-footer">
-            <div class="pull-right">
-                <a @*href="javascript:document.getElementById('logoutForm').submit()"*@ class="btn btn-default btn-flat" id="btnlogout">Log out</a>
-            </div>
-           
+            @using (Html.BeginForm("Logout", "Auth", FormMethod.Post, new { id = "logoutForm", @class = "" }))
+            {
+
+                <div class="pull-right">
+                    <a href="javascript:document.getElementById('logoutForm').submit()" class="btn btn-default btn-flat">Log out</a>
+                </div>
+            }
         </li>
     </ul>
     @*}
@@ -49,30 +52,3 @@
         }*@
 </li>
 @Scripts.Render("~/AdminLTE/plugins/jquery/script")
-<script type="text/javascript">
-    $('#btnlogout').on('click', function () {
-        
-        //var token = sessionStorage.getItem(tokenKey);
-        //var headers = {};
-        //if (token) {
-        //    headers.Authorization = 'Bearer ' + token;
-        //}
-
-        $.ajax({
-            type: 'POST',
-            url: "@Url.Action("Logout", "Auth")",
-            //headers: headers
-        }).done(function (data) {
-            location.href = "./";
-            noBack();
-        }).fail(showError);
-        alert('test');
-    });
-    function noBack() {
-        window.history.forward();
-    }
-    noBack();
-    window.onload = noBack;
-    window.onpageshow = function (evt) { if (evt.persisted) noBack(); }
-    window.onunload = function () { void (0); }
-</script>

@@ -28,21 +28,21 @@ namespace ProvidentUtility.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(Users model)
         {
-            //ServiceSoapClient client = new ServiceSoapClient();
+            ServiceSoapClient client = new ServiceSoapClient();
             
-            //if (client.AuthenticateUser(model.username,model.password) == "True")
-            if (true)
+            if (client.AuthenticateUser(model.username,model.password) == "True")
+            //if (true)
             {
                 var users = UserRepository.GetUser(model.username);
                 if (users!=null)
                 {
-                    //UserNameDetails details = client.GetUserNameDetailsViaLoginName(model.username);
+                    UserNameDetails details = client.GetUserNameDetailsViaLoginName(model.username);
 
 
                     var identity = new ClaimsIdentity(new[]
                     {
-                        new Claim(ClaimTypes.Name,"Anthony Carl R. Meniado" +"," +"Anthony Carl"+","+users.username+","+ users.hub_code +","+users.branch_code), 
-                        //new Claim(ClaimTypes.Name,client.GetDisplayName(model.username) +"," +details.FirstName+","+users.username+","+ users.hub_code +","+users.branch_code), 
+                       // new Claim(ClaimTypes.Name,"Anthony Carl R. Meniado" +"," +"Anthony Carl"+","+users.username+","+ users.hub_code +","+users.branch_code), 
+                        new Claim(ClaimTypes.Name,client.GetDisplayName(model.username) +"," +details.FirstName+","+users.username+","+ users.hub_code +","+users.branch_code), 
                         new Claim(ClaimTypes.Email,model.username + "@pagibigfund.gov.ph"),
                     
                     }, "ApplicationCookie");
@@ -64,7 +64,7 @@ namespace ProvidentUtility.Controllers
         }
 
 
-        [HttpPost]
+        
         public ActionResult Logout()
         {
             Request.GetOwinContext().Authentication.SignOut();

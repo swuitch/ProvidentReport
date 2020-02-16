@@ -19,140 +19,12 @@ namespace ProvidentUtility.Controllers
     [Authorize]
     public class DeliveryReportController : Controller
     {
-        DataTable dtData, dtColumn; 
         // GET: DeliveryReport
         public ActionResult Index()
         {
             return View();
         }
 
-        public void LoadDbf()
-        {
-            string rfileName = Path.Combine(Server.MapPath("~/Downloads"), "test.dbf");
-            string filePath = Path.GetDirectoryName(rfileName);
-            OleDbConnection connection = new OleDbConnection("Provider=VFPOLEDB.1;Data Source=" + filePath + ";");
-            connection.Open();
-            DataTable tables = connection.GetSchema(OleDbMetaDataCollectionNames.Tables);
-            dtColumn = null;
-            string fName = Path.GetFileNameWithoutExtension(rfileName);
-            foreach (DataRow rowTables in tables.Rows)
-            {
-                if (rowTables["table_name"].ToString().ToUpper() == fName.ToUpper())
-                {
-                    DataTable columns = connection.GetSchema(OleDbMetaDataCollectionNames.Columns,
-                        new String[] { null, null, rowTables["table_name"].ToString(), null });
-
-                    dtColumn = GetColumnDataTable();
-                    foreach (System.Data.DataRow rowColumns in columns.Rows)
-                    {
-                        DataRow dr = dtColumn.NewRow();
-                        dr[0] = rowColumns["column_name"].ToString();
-                        dr[1] = OleDbType(int.Parse(rowColumns["data_type"].ToString()));
-                        dr[2] = rowColumns["data_type"].ToString();
-                        dr[3] = rowColumns["numeric_precision"].ToString();
-                        dtColumn.Rows.Add(dr);
-                    }
-                    break;
-                }
-            }
-
-            string sql = "SELECT * FROM " + fName;
-            OleDbCommand cmd = new OleDbCommand(sql, connection);
-            OleDbDataAdapter DA = new OleDbDataAdapter(cmd);
-            dtData = new DataTable();
-            DA.Fill(dtData);
-            connection.Close();
-        }
-
-        static DataTable GetColumnDataTable()
-        {
-            DataTable table = new DataTable();
-            table.Columns.Add("NAME", typeof(string));
-            table.Columns.Add("TYPE", typeof(string));
-            table.Columns.Add("TYPENO", typeof(string));
-            table.Columns.Add("DEC", typeof(string));
-            return table;
-        }
-
-        public string OleDbType(int type)
-        {
-            string dataType;
-            switch (type)
-            {
-                case 10:
-                    dataType = "BigInt";
-                    break;
-                case 128:
-                    dataType = "Byte";
-                    break;
-                case 11:
-                    dataType = "Boolean";
-                    break;
-                case 8:
-                    dataType = "String";
-                    break;
-                case 129:
-                    dataType = "String";
-                    break;
-                case 6:
-                    dataType = "Currency";
-                    break;
-                case 7:
-                    dataType = "DateTime";
-                    break;
-                case 133:
-                    dataType = "DateTime";
-                    break;
-                case 134:
-                    dataType = "TimeSpan";
-                    break;
-                case 135:
-                    dataType = "DateTime";
-                    break;
-                case 14:
-                    dataType = "Decimal";
-                    break;
-                case 5:
-                    dataType = "Double";
-                    break;
-                case 3:
-                    dataType = "Integer";
-                    break;
-                case 201:
-                    dataType = "String";
-                    break;
-                case 203:
-                    dataType = "String";
-                    break;
-                case 204:
-                    dataType = "Byte";
-                    break;
-                case 200:
-                    dataType = "String";
-                    break;
-                case 139:
-                    dataType = "Decimal";
-                    break;
-                case 202:
-                    dataType = "String";
-                    break;
-                case 130:
-                    dataType = "String";
-                    break;
-                case 131:
-                    dataType = "Decimal";
-                    break;
-                case 64:
-                    dataType = "DateTime";
-                    break;
-
-                default:
-                    dataType = "";
-                    break;
-            }
-
-            return dataType;
-        }  
         public ActionResult GetList()
         {
 
@@ -331,14 +203,7 @@ namespace ProvidentUtility.Controllers
                 }
 
             }
-            //if (file != null && file.ContentLength > 0)
-            //{
-            //    var fileName = Path.GetFileName(file.FileName);
-            //    var path = Path.Combine(Server.MapPath("~/Uploads/"), fileName);
-            //    file.SaveAs(path);
-            //}
-
-            //return RedirectToAction("UploadDocument");
+           
         }
 
     }
