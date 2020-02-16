@@ -55,11 +55,11 @@ namespace ProvidentUtility.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "You are not registered to the system. Please contact your System Administrator.");
+                    ViewBag.Error = "You are not registered to the system. Please contact your System Administrator.";
                 }
                 
             }
-            ModelState.AddModelError("", "The Username and password you entered don't match.");
+            ViewBag.Error = "The Username and password you entered don't match.";
             return View();
         }
 
