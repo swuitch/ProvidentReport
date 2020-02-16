@@ -67,7 +67,7 @@ namespace ProvidentUtility.Controllers
         [HttpPost]
         public ActionResult Logout()
         {
-            
+            Request.GetOwinContext().Authentication.SignOut();
             var ctx = Request.GetOwinContext();
             var authManager = ctx.Authentication;
             //authManager.User.Claims.ToList().ForEach(claim => Context.Entry(claim).State =

@@ -16,6 +16,7 @@ using ProvidentUtility.Repositories;
 
 namespace ProvidentUtility.Controllers
 {
+    [Authorize]
     public class DeliveryReportController : Controller
     {
         DataTable dtData, dtColumn; 
@@ -27,7 +28,7 @@ namespace ProvidentUtility.Controllers
 
         public void LoadDbf()
         {
-            string rfileName = Path.Combine(Server.MapPath("~/Downloads"), "HQPSLF131.rpt");
+            string rfileName = Path.Combine(Server.MapPath("~/Downloads"), "test.dbf");
             string filePath = Path.GetDirectoryName(rfileName);
             OleDbConnection connection = new OleDbConnection("Provider=VFPOLEDB.1;Data Source=" + filePath + ";");
             connection.Open();
