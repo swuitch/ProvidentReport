@@ -1,0 +1,89 @@
+﻿@model ProvidentUtility.Models.Users
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+
+
+@using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { role = "form", @class = "form-signin" }))
+{
+
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-dismissible alert-danger" })
+
+    <div class="form-group">
+
+        @Html.TextBoxFor(m => m.username, new { @class = "form-control ", type = "Username", placeholder = "Username", Required = "",@name="username",@autofocus="" })
+
+
+        @Html.ValidationMessageFor(m => m.username, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required=""  />
+
+
+    </div>
+
+    <div class="form-group">
+
+        <button class="btn btn-lg btn-primary btn-block btn-signin" id="Save">Sign in</button>
+        
+    </div>
+}
+
+@*<form id="form" method="POST">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+
+        <input type="text" name="username" id="username" class="form-control" placeholder="Password"/>
+
+
+    </div>
+    <div class="form-group">
+
+        <input type="password" name="password" id="password" class="form-control" placeholder="Password"/>
+
+
+    </div>
+    <div class="form-group">
+
+        <button class="btn btn-lg btn-primary btn-block btn-signin" id="Save">Sign in</button>
+
+    </div>
+
+</form>*@
+
+<script src="~/AdminLTE/plugins/jquery/js/jQuery-2.1.4.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+       
+        $("#Save").click(function (e) {
+        var _users = {};
+        
+        _users.username = $("#username").val();
+        _users.password = $("#password").val();
+        var headers = { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() };
+
+        $.ajax({
+            headers: headers,
+            url: "@Url.Action("Login","Auth")",
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(_users),
+            //headers: {
+            //    'Authorization': 'Basic ' + $("#username").val() +":"+$("#password").val()
+            //},
+            success: function (response) {
+                console.log(JSON.stringify(response));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation');
+            }
+        });
+    });
+})
+</script>

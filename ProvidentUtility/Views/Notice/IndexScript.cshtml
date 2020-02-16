@@ -1,0 +1,132 @@
+﻿<script type="text/javascript">
+    var table;
+    $(document).ready(function () {
+        $('#loading').hide();
+        table = $("#data-table").DataTable({
+
+            "lengthChange": false,
+            "searching": false,
+        });
+        table
+               .clear()
+               .draw();
+
+      
+
+        //set cutoff according on hub code
+        function FormatShortDate(value) {
+            var pattern = /Date\(([^)]+)\)/;
+            var results = pattern.exec(value);
+            var dt = new Date(parseFloat(results[1]));
+            var final_date = (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+            if (final_date == '12/31/1110' || final_date == '12/31/0' || final_date == '1/1/1') {
+                return '';
+            } else {
+                return final_date;
+            }
+
+        }
+
+
+        $.ajax({
+            url: "@Url.Action("CuttOffData", "Notice")",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function(data) {
+                var s = '<option value="-1"> Please select</option>';
+
+                for (var i = 0; i < data.length; i++) {
+
+                    s += '<option value="' + FormatShortDate(data[i].cutdate) + '">' + data[i].desc + '</option>';
+                }
+
+                $("#cutoff").html(s);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+
+        $('#cutoff').on('change', function() {
+            if (this.value == -1) {
+                table
+               .clear()
+               .draw();
+                $('#download').attr("disabled", true);
+            } else {
+                $('#download').attr("disabled", false);
+                loadList(this.value);
+
+            }
+        });
+        
+        $('#download').on('click', function () {
+            $('#loading').show();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DownloadData", "Notice")',
+                data: { 'cutdate': $("#cutoff").val() },
+                success: function (data) {
+
+                    download();
+                    $('#loading').hide();
+                    
+                    //$("#loading").removeClass("loading");
+                },
+                error: function() {
+                    alert('Error');
+                    $('#loading').hide();
+                }
+            });
+        });
+        function download() {
+            window.open("@Url.Action("DownloadFile", "Notice")", "_self");
+        }
+        function loadList(cutdate) {
+
+            table = $("#data-table").DataTable({
+                destroy: true,
+                "scrollY": "400px",
+                //"scrollCollapse": true,
+                "ajax": {
+                    "url": "@Url.Action("EmployerData", "Notice")",
+                    "data": { 'cutdate': cutdate },
+                    "type": "GET",
+                    "datatype": "application/json",
+                },
+                "lengthChange": false,
+                "searching": false,
+                "columns": [
+                    { "data": "pagibig_erid" },
+                    { "data": "eyername" },
+                    { "data": "eyeraddr", "defaultContent": "" },
+                    //{ "data": "num" }
+                ],
+
+                "columnDefs": [
+                    { "width": "20px", "targets": 0 },
+                    { "width": "38%", "targets": 1 },
+                    { "width": "50%", "targets": 2 },
+                    //{ "width": "30px", "targets": 3 }
+                ],
+
+                "order": [[1, "asc"]]
+
+
+            });
+
+        }
+
+
+        $('#table-filter').on('change', function () {
+            table.search(this.value).draw();
+        });
+
+    });
+
+</script>
+
+@Scripts.Render("~/AdminLTE/plugins/datatables/script")
+@Scripts.Render("~/AdminLTE/plugins/datepicker/script")
+@Scripts.Render("~/AdminLTE/plugins/daterangepicker/script")

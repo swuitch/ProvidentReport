@@ -1,0 +1,18 @@
+﻿#overlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 99999;
+    background-color: gray;
+    filter: alpha(opacity=75);
+    -moz-opacity: 0.75;
+    opacity: 0.75;
+    display: none;
+}
+#overlay h2 {
+    position: fixed;
+    margin-left: 40%;
+    top: 40%;
+}

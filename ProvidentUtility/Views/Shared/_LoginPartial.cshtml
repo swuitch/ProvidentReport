@@ -1,0 +1,78 @@
+﻿@using ProvidentUtility.Models
+@using ProvidentUtility.Repositories
+
+<li class="dropdown user user-menu">
+    @*@if (true)
+        {*@
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <img src="~/user.svg" class="user-image" alt="User Image">
+        @{
+            Users usr=UserRepository.Details(User.Identity.Name);
+        }
+        <span class="hidden-xs">@usr.fullname </span>
+        
+    </a>
+    <ul class="dropdown-menu">
+        <li class="user-header">
+            <img src="~/user.svg" class="img-circle" alt="User Image">
+            <p>
+                @*<small>@User.Identity.GetUserEmail()</small>*@
+            </p>
+        </li>
+        @*<li class="user-body">
+                <div class="row">
+                    <div class="col-xs-4 text-center">
+                        <a href="#">Followers</a>
+                    </div>
+                    <div class="col-xs-4 text-center">
+                        <a href="#">Sales</a>
+                    </div>
+                    <div class="col-xs-4 text-center">
+                        <a href="#">Friends</a>
+                    </div>
+                </div>
+            </li>*@
+        <li class="user-footer">
+            <div class="pull-right">
+                <a @*href="javascript:document.getElementById('logoutForm').submit()"*@ class="btn btn-default btn-flat" id="btnlogout">Log out</a>
+            </div>
+           
+        </li>
+    </ul>
+    @*}
+        else
+        {
+            <ul class="nav navbar-nav">
+                <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+                <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+            </ul>
+        }*@
+</li>
+@Scripts.Render("~/AdminLTE/plugins/jquery/script")
+<script type="text/javascript">
+    $('#btnlogout').on('click', function () {
+        
+        //var token = sessionStorage.getItem(tokenKey);
+        //var headers = {};
+        //if (token) {
+        //    headers.Authorization = 'Bearer ' + token;
+        //}
+
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("Logout", "Auth")",
+            //headers: headers
+        }).done(function (data) {
+            location.href = "./";
+            noBack();
+        }).fail(showError);
+        alert('test');
+    });
+    function noBack() {
+        window.history.forward();
+    }
+    noBack();
+    window.onload = noBack;
+    window.onpageshow = function (evt) { if (evt.persisted) noBack(); }
+    window.onunload = function () { void (0); }
+</script>
