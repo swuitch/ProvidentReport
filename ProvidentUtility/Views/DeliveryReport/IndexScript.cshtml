@@ -1,0 +1,290 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        $('#loading').hide();
+        var table = $("#data-table").DataTable({
+            "lengthChange": false,
+            "searching": false,
+        });
+        table
+            .clear()
+            .draw();
+        var tableupload = $("#data-table-upload").DataTable({
+            "lengthChange": false,
+            "searching": false
+        });
+        tableupload
+            .clear()
+            .draw();
+        loadData();
+        function loadData() {
+
+            table = $("#data-table").DataTable({
+                destroy: true,
+                //"processing": true,
+                //"serverSide": true,
+                //"stateSave": true,
+                "scrollY": "400px",
+                "ajax": {
+                    "url": "@Url.Action("GetList","DeliveryReport")",
+                    "type": "GET",
+                    "datatype": "application/json",
+                },
+
+                "lengthChange": false,
+                "searching": false,
+
+                "columns": [
+                    {
+                        data: function(data) {
+                            //return '<button type="button" class="btn btn-default fa fa-edit" data-toggle="modal" data-target="#myModal" onclick="getbyID(\'' + data.supplycode + '\')"></button>';
+
+                            var a = '<label>' + data.batchno + '</label><br />';
+                            //a += '<label>' + data.pod_date + '</label><br />';
+                            return a;
+                        }
+                    },
+                    
+
+                    {
+                        "data": "cutdate",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+                            var pattern = /Date\(([^)]+)\)/;
+                            var results = pattern.exec(value);
+                            var dt = new Date(parseFloat(results[1]));
+
+                            return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+                        }
+
+                    },
+                    {
+                        "data": function (data, type, dataToSet) {
+                            var res;
+                            res = '<div class="dropdown pull-right">' +
+                                '<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Print ' +
+                                '<span class="caret"></span></button>' +
+                                '<ul class="dropdown-menu" >' +
+                                '<li><a href="#" onclick="HQPSLF131(\'' + data.batchno + '\')">List Of Transmitted Mails By Service Provider</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF132(\'' + data.batchno + '\')">List Of Return to Sender Mails</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF133(\'' + data.batchno + '\')">Service Fee Computation Sheet</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF134(\'' + data.batchno + '\')">Summary of Service Fee Compuatation Sheet</a></li> ' +
+                                '</ul>  </div>';
+
+                            return res;
+                        }
+                    }
+                    //{ "data": "num" }
+                ],
+                "order": [[0, "desc"]]
+
+
+
+
+            });
+
+        }
+        // reload data 
+        $("a[href='#tab_1-1']").on('shown.bs.tab', function (e) {
+            loadData();
+        });
+
+        $('#btndbf').on('click', function() {
+            alert('dbf');
+        });
+
+        $('#btnbrowse').on('click', function (e) {
+            
+            $('#fileUpload').trigger('click');
+            var tableupload = $("#data-table-upload").DataTable({
+                "destroy":true,
+                "lengthChange": false,
+                "searching": false
+            });
+            tableupload
+                .clear()
+                .draw();
+        });
+
+        $('#fileUpload').on('change', function (e) {
+            e.preventDefault();
+            var formData = new FormData();
+            formData.append('file', $('#fileUpload')[0].files[0]);
+            $('#loading').show();
+            $.ajax({
+                cache: false,
+                url: "@Url.Action("Upload", "DeliveryReport")",
+                processData: false,
+                contentType: false,
+                data: formData,
+                method: 'POST',
+                success: function (result) {
+
+                    tableupload = $("#data-table-upload").DataTable({
+                        destroy: true,
+                        "scrollY": "400px",
+                        "data": result,
+                        "lengthChange": false,
+                        "searching": false,
+                        "columns": [
+                            { "data": "batchno" },
+                            { "data": "trackno" },
+                            {
+                                "data": "pod_date",
+                                "type": "date ",
+                                "render": function(value) {
+                                    if (value === null) return "";
+
+                                    var pattern = /Date\(([^)]+)\)/;
+                                    var results = pattern.exec(value);
+                                    var dt = new Date(parseFloat(results[1]));
+
+                                    return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+                                }
+
+                            },
+                            { "data": "pagibig_erid" },
+                            { "data": "num_envelope" },
+                            { "data": "num" }
+                        ],
+                        "columnDefs": [
+                                {
+                                    "targets": [ 5 ],
+                                    "visible": false,
+                                    "searchable": false
+                                }
+                                
+                        ],
+                        "footerCallback": function ( row, result, start, end, display ) {
+                            var api = this.api(), result;
+ 
+                           
+                            var intVal = function ( i ) {
+                                return typeof i === 'string' ?
+                                    i.replace(/[\$,]/g, '')*1 :
+                                    typeof i === 'number' ?
+                                    i : 0;
+                            };
+
+                            first = api
+                                .column(5)
+                                .data()
+                                .reduce(function (a,b) {
+                                    return intVal(b)+ intVal(0) ;
+                                }, 0);
+                            total = api
+                                .column( 4 )
+                                .data()
+                                .reduce( function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0 );
+ 
+                            
+                            pageTotal = api
+                                .column( 4, { page: 'current'} )
+                                .data()
+                                .reduce( function (a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0 );
+ 
+                            
+                            $( api.column( 4 ).footer() ).html(
+                                ('Uploaded: ' +total + ' <br /> ' + 'Updated: ' +first)
+                            );
+                        },
+                        
+                       
+                    });
+                    $('#loading').hide();
+                    
+
+                }
+                
+        });
+    });
+
+    });
+
+    function HQPSLF131(id) {
+
+
+        url = '@Html.Raw(Url.Action("PrintHQPSLF131", "DeliveryReport", new { batchno = "tempbatchno" }))';
+        url = url.replace('tempbatchno', id);
+        window.open(url, '_blank');
+
+
+    }
+
+
+    function HQPSLF132(id) {
+
+
+        url = '@Html.Raw(Url.Action("PrintHQPSLF132", "DeliveryReport", new { batchno = "tempbatchno" }))';
+        url = url.replace('tempbatchno', id);
+        window.open(url, '_blank');
+
+
+    }
+    function HQPSLF133(id) {
+
+
+        url = '@Html.Raw(Url.Action("PrintHQPSLF133", "DeliveryReport", new { batchno = "tempbatchno" }))';
+        url = url.replace('tempbatchno', id);
+        window.open(url, '_blank');
+
+
+    }
+    function HQPSLF134(id) {
+
+
+        url = '@Html.Raw(Url.Action("PrintHQPSLF134", "DeliveryReport", new { batchno = "tempbatchno" }))';
+        url = url.replace('tempbatchno', id);
+        window.open(url, '_blank');
+
+
+    }
+    function bs_input_file() {
+        $(".input-file").before(
+            function () {
+                if (!$(this).prev().hasClass('input-ghost')) {
+                    var element = $("<input type='file' class='input-ghost' style='visibility:hidden; height:0'>");
+                    element.attr("name", $(this).attr("name"));
+                    element.change(function () {
+                        element.next(element).find('input').val((element.val()).split('\\').pop());
+                    });
+                    $(this).find("button.btn-choose").click(function () {
+                        element.click();
+                    });
+                    $(this).find("button.btn-reset").click(function () {
+                        element.val(null);
+                        $(this).parents(".input-file").find('input').val('');
+                    });
+                    $(this).find('input').css("cursor", "pointer");
+                    $(this).find('input').mousedown(function () {
+                        $(this).parents('.input-file').prev().click();
+                        return false;
+                    });
+                    return element;
+                }
+            }
+        );
+    }
+    $(function () {
+        bs_input_file();
+    });
+    function FormatShortDate(value) {
+        var pattern = /Date\(([^)]+)\)/;
+        var results = pattern.exec(value);
+        var dt = new Date(parseFloat(results[1]));
+        var final_date = (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+        if (final_date == '12/31/1110' || final_date == '12/31/0' || final_date == '1/1/1') {
+            return '';
+        } else {
+            return final_date;
+        }
+
+    }
+</script>
+
+@Scripts.Render("~/AdminLTE/plugins/datatables/script")
