@@ -14,7 +14,6 @@
         table = $("#data-table").DataTable({
             destroy: true,
             "scrollY": "400px",
-            //"scrollCollapse": true,
             "ajax": {
                 "url": "@Url.Action("UserData", "UserAccounts")",
                 "type": "GET",
@@ -37,7 +36,26 @@
                         }
                     }
                 ],
-
+                dom: "lBtipr",
+                buttons: {
+                    buttons: [
+                      {
+                          text: "Register new",
+                          action: function(e, dt, node, config) {
+                              //trigger the bootstrap modal
+                          }
+                      }
+                    ],
+                    dom: {
+                        button: {
+                            tag: "button",
+                            className: "btn btn-primary"
+                        },
+                        buttonLiner: {
+                            tag: null
+                        }
+                    }
+                },
                 "columnDefs": [
                     { "width": "40px", "targets": 0 },
                     { "width": "38%", "targets": 1 },

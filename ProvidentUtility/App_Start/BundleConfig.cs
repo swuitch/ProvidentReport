@@ -72,10 +72,12 @@ namespace ProvidentUtility
             // plugins | datatables
             bundles.Add(new ScriptBundle("~/AdminLTE/plugins/datatables/script").Include(
                                          "~/AdminLTE/plugins/datatables/js/jquery.dataTables.min.js",
-                                         "~/AdminLTE/plugins/datatables/js/dataTables.bootstrap.min.js"));
+                                         "~/AdminLTE/plugins/datatables/js/dataTables.bootstrap.min.js",
+                                         "~/AdminLTE/plugins/datatables/js/dataTables.buttons.min.js"));
 
             bundles.Add(new StyleBundle("~/AdminLTE/plugins/datatables/styles").Include(
-                                        "~/AdminLTE/plugins/datatables/css/dataTables.bootstrap.css"));
+                                        "~/AdminLTE/plugins/datatables/css/dataTables.bootstrap.css",
+                                        "~/AdminLTE/plugins/datatables/css/buttons.dataTables.min.css"));
 
             // plugins | datepicker
             bundles.Add(new ScriptBundle("~/AdminLTE/plugins/datepicker/script").Include(

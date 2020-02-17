@@ -48,12 +48,12 @@
       <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
-    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
-    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
-    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="Dapper, Version=1.50.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.1.50.5\lib\net451\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
@@ -587,6 +587,7 @@
     <Content Include="AdminLTE\plugins\colorpicker\img\saturation.png" />
     <Content Include="AdminLTE\plugins\colorpicker\js\bootstrap-colorpicker.js" />
     <Content Include="AdminLTE\plugins\colorpicker\js\bootstrap-colorpicker.min.js" />
+    <Content Include="AdminLTE\plugins\datatables\css\buttons.dataTables.min.css" />
     <Content Include="AdminLTE\plugins\datatables\css\dataTables.bootstrap.css" />
     <Content Include="AdminLTE\plugins\datatables\css\jquery.dataTables.css" />
     <Content Include="AdminLTE\plugins\datatables\css\jquery.dataTables.min.css" />
@@ -598,6 +599,7 @@
     <Content Include="AdminLTE\plugins\datatables\images\sort_desc_disabled.png" />
     <Content Include="AdminLTE\plugins\datatables\js\dataTables.bootstrap.js" />
     <Content Include="AdminLTE\plugins\datatables\js\dataTables.bootstrap.min.js" />
+    <Content Include="AdminLTE\plugins\datatables\js\dataTables.buttons.min.js" />
     <Content Include="AdminLTE\plugins\datatables\js\extensions\AutoFill\css\dataTables.autoFill.css" />
     <Content Include="AdminLTE\plugins\datatables\js\extensions\AutoFill\css\dataTables.autoFill.min.css" />
     <Content Include="AdminLTE\plugins\datatables\js\extensions\AutoFill\examples\columns.html" />
