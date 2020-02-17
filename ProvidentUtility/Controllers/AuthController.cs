@@ -19,14 +19,15 @@ namespace ProvidentUtility.Controllers
     [AllowAnonymous]
     public class AuthController : Controller
     {
-        public ActionResult Login()
+        public ActionResult Index()
         {
             return View();
         }
+     
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(Users model)
+        public ActionResult Index(Users model)
         {
             ServiceSoapClient client = new ServiceSoapClient();
             
@@ -55,11 +56,11 @@ namespace ProvidentUtility.Controllers
                 }
                 else
                 {
-                    ViewBag.Error = "You are not registered to the system. Please contact your System Administrator.";
+                    ViewBag.message = "You are not registered to the system. Please contact your System Administrator.";
                 }
                 
             }
-            ViewBag.Error = "The Username and password you entered don't match.";
+            ViewBag.message = "The Username and password you entered don't match.";
             return View();
         }
 
@@ -67,7 +68,7 @@ namespace ProvidentUtility.Controllers
         
         public ActionResult Logout()
         {
-            Request.GetOwinContext().Authentication.SignOut();
+            
             var ctx = Request.GetOwinContext();
             var authManager = ctx.Authentication;
             //authManager.User.Claims.ToList().ForEach(claim => Context.Entry(claim).State =
@@ -76,8 +77,8 @@ namespace ProvidentUtility.Controllers
             //Context.SaveChanges();
             HttpContext.User = new GenericPrincipal(new GenericIdentity(string.Empty), null);
             authManager.SignOut("ApplicationCookie");
-            
 
+            Request.GetOwinContext().Authentication.SignOut();
             return RedirectToAction("Index", "Home");
         }
 

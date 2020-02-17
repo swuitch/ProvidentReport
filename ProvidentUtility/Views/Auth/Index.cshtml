@@ -1,16 +1,10 @@
 ﻿@model ProvidentUtility.Models.Users
-
 @{
-    ViewBag.Title = "Login";
     Layout = "~/Views/Shared/_LayoutLogin.cshtml";
 }
 
-
 <div class="form-group">
-    <div class="alert alert-dismissible alert-danger">
-        @*<button type="button" class="close" data-dismiss="alert">&times;</button>*@
-        <strong></strong> @ViewBag.message.
-    </div>
+
     @if (ViewBag.message != null)
     {
         <div class="alert alert-dismissible alert-danger">
@@ -20,7 +14,7 @@
     }
 </div>
 
-@using (Html.BeginForm("Login", "Auth", FormMethod.Post, new { role = "form", @class = "form-signin" }))
+@using (Html.BeginForm("Index", "Auth", FormMethod.Post, new { role = "form", @class = "form-signin" }))
 {
     @Html.AntiForgeryToken()
 
@@ -43,7 +37,6 @@
     <div class="form-group">
 
         <button type="submit" class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
-        @*<button type="submit" class="btn btn-lg btn-primary col-md-10">Sign In</button>*@
     </div>
 }
 

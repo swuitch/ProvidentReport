@@ -6,7 +6,7 @@
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=1024, initial-scale=1">
-    <title>@ViewBag.Title - Provident Report Generation Utility</title>
+    <title>Provident Report Generation Utility</title>
     @Styles.Render("~/Content/css/styles")
     <link href="~/Content/bootstrap.css" rel="stylesheet" />
     @*<link href="~/Content/Site.css" rel="stylesheet" />*@
@@ -25,16 +25,7 @@
 
             @*<a href="@Url.Action("Index", "Login")">Welcome to <b>Pag-IBIG Fund</b></a>*@
 
-            <div class="form-group">
-
-                @if (ViewBag.message != null)
-                {
-                    <div class="alert alert-dismissible alert-danger">
-                        @*<button type="button" class="close" data-dismiss="alert">&times;</button>*@
-                        <strong></strong> @ViewBag.message.
-                    </div>
-                }
-            </div>
+            
 
             @RenderBody()
 

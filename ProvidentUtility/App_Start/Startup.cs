@@ -16,7 +16,7 @@ namespace ProvidentUtility.App_Start
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = "ApplicationCookie",
-                LoginPath = new PathString("/Auth/Login")
+                LoginPath = new PathString("/Auth/")
             });
             
         }

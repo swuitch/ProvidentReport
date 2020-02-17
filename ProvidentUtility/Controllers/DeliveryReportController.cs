@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.OleDb;
 using System.IO;
 using System.Linq;
-using System.ServiceModel.Channels;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using CrystalDecisions.CrystalReports.Engine;
+using CrystalDecisions.Shared;
 using OfficeOpenXml;
 using ProvidentUtility.Models;
 using ProvidentUtility.Repositories;
@@ -70,7 +67,7 @@ namespace ProvidentUtility.Controllers
             Response.ClearContent();
             Response.ClearHeaders();
 
-            Stream stream = rd.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+            Stream stream = rd.ExportToStream(ExportFormatType.PortableDocFormat);
             stream.Seek(0, SeekOrigin.Begin);
 
             rd.Dispose();
@@ -92,7 +89,7 @@ namespace ProvidentUtility.Controllers
             Response.ClearContent();
             Response.ClearHeaders();
 
-            Stream stream = rd.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+            Stream stream = rd.ExportToStream(ExportFormatType.PortableDocFormat);
             stream.Seek(0, SeekOrigin.Begin);
 
             rd.Dispose();
@@ -112,7 +109,7 @@ namespace ProvidentUtility.Controllers
             Response.ClearContent();
             Response.ClearHeaders();
 
-            Stream stream = rd.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+            Stream stream = rd.ExportToStream(ExportFormatType.PortableDocFormat);
             stream.Seek(0, SeekOrigin.Begin);
 
             rd.Dispose();
@@ -134,7 +131,7 @@ namespace ProvidentUtility.Controllers
             Response.ClearContent();
             Response.ClearHeaders();
 
-            Stream stream = rd.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+            Stream stream = rd.ExportToStream(ExportFormatType.PortableDocFormat);
             stream.Seek(0, SeekOrigin.Begin);
 
             rd.Dispose();

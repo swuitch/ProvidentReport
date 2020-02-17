@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Dapper;
 using Ingres.Client;
@@ -8,6 +9,17 @@ namespace ProvidentUtility.Repositories
 {
     public class UserRepository
     {
+
+        public static List<Users>GetAllUsers()
+        {
+            using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
+            {
+                db.Query("set lockmode session where readlock=nolock");
+                return db.Query<Users>("SELECT a.*,b.hub_name,c.branch_name FROM lo_stl_billing_users a " +
+                                       "inner join hdmf_hub_master b on b.hub_code=a.hub_code " +
+                                       "inner join hdmf_branches c on c.branch_code=a.branch_code ").ToList();
+            }
+        }
         public static Users GetUser(string username)
         {
             using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
@@ -19,6 +31,7 @@ namespace ProvidentUtility.Repositories
             }
         }
 
+        
         public static Users Details(string phrase)
         {
             //new Claim(ClaimTypes.Name,client.GetDisplayName(model.username) +"," +details.FirstName+","+users.username+","+ users.hub_code +","+users.branch_code), 

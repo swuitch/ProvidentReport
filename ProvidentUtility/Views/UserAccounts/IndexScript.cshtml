@@ -1,0 +1,80 @@
+﻿<script type="text/javascript">
+    var table;
+    $(document).ready(function () {
+        $('#loading').hide();
+        table = $("#data-table").DataTable({
+
+            "lengthChange": false,
+            "searching": false,
+        });
+        table
+               .clear()
+               .draw();
+
+        table = $("#data-table").DataTable({
+            destroy: true,
+            "scrollY": "400px",
+            //"scrollCollapse": true,
+            "ajax": {
+                "url": "@Url.Action("UserData", "UserAccounts")",
+                "type": "GET",
+                "datatype": "application/json",
+                },
+                "lengthChange": false,
+                "searching": true,
+                "columns": [
+                    { "data": "username" },
+                    { "data": "hub_name" },
+                    { "data": "branch_name"},
+                    {
+                        "data": "username",
+                        "width": "90px",
+                        "render": function (data) {
+                            // '<button type="button" class="btn btn-danger fa fa-trash" onclick="remove(\'' + data + '\')"></button>';
+                            return '</button><button type="button" class="btn btn-default fa fa-edit" data-toggle="modal" data-target="#myModal" onclick="getbyID(\'' + data + '\')"> Edit</button> ' +
+                                '</button><button type="button" class="btn btn-default fa fa-print" onclick="generateQR(\'' + data + '\')"> Print</button> ';
+
+                        }
+                    }
+                ],
+
+                "columnDefs": [
+                    { "width": "40px", "targets": 0 },
+                    { "width": "38%", "targets": 1 },
+                    { "width": "38%", "targets": 2 },
+                    { "width": "10px", "targets": 3 }
+                ],
+
+                "order": [[1, "asc"]]
+
+
+    });
+
+        //set cutoff according on hub code
+        function FormatShortDate(value) {
+            var pattern = /Date\(([^)]+)\)/;
+            var results = pattern.exec(value);
+            var dt = new Date(parseFloat(results[1]));
+            var final_date = (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+            if (final_date == '12/31/1110' || final_date == '12/31/0' || final_date == '1/1/1') {
+                return '';
+            } else {
+                return final_date;
+            }
+
+        }
+
+
+       
+
+    
+       
+        
+   
+    });
+
+</script>
+
+@Scripts.Render("~/AdminLTE/plugins/datatables/script")
+@Scripts.Render("~/AdminLTE/plugins/datepicker/script")
+@Scripts.Render("~/AdminLTE/plugins/daterangepicker/script")
