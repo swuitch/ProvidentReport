@@ -11,6 +11,9 @@ using System.Web.Mvc;
 using System.Web.Security;
 using ProvidentUtility.Models;
 using Dapper;
+using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OpenIdConnect;
 using ProvidentUtility.DomainService;
 using ProvidentUtility.Repositories;
 
@@ -30,12 +33,12 @@ namespace ProvidentUtility.Controllers
         public ActionResult Index(Users model)
         {
             ServiceSoapClient client = new ServiceSoapClient();
-            
-            if (client.AuthenticateUser(model.username,model.password) == "True")
-            //if (true)
+
+            if (client.AuthenticateUser(model.username, model.password) == "True")
+                //if (true)
             {
                 var users = UserRepository.GetUser(model.username);
-                if (users!=null)
+                if (users != null)
                 {
                     UserNameDetails details = client.GetUserNameDetailsViaLoginName(model.username);
 
@@ -43,9 +46,11 @@ namespace ProvidentUtility.Controllers
                     var identity = new ClaimsIdentity(new[]
                     {
                         //new Claim(ClaimTypes.Name,"Anthony Carl R. Meniado" +"," +"Anthony Carl"+","+users.username+","+ users.hub_code +","+users.branch_code), 
-                        new Claim(ClaimTypes.Name,client.GetDisplayName(model.username) +"," +details.FirstName+","+users.username+","+ users.hub_code +","+users.branch_code), 
-                        new Claim(ClaimTypes.Email,model.username + "@pagibigfund.gov.ph"),
-                    
+                        new Claim(ClaimTypes.Name,
+                            client.GetDisplayName(model.username) + "," + details.FirstName + "," + users.username + "," +
+                            users.hub_code + "," + users.branch_code),
+                        new Claim(ClaimTypes.Email, model.username + "@pagibigfund.gov.ph"),
+
                     }, "ApplicationCookie");
 
 
@@ -58,14 +63,18 @@ namespace ProvidentUtility.Controllers
                 {
                     ViewBag.message = "You are not registered to the system. Please contact your System Administrator.";
                 }
-                
+
             }
-            ViewBag.message = "The Username and password you entered don't match.";
+            else
+            {
+                ViewBag.message = "The Username and password you entered don't match.";    
+            }
+            
             return View();
         }
 
 
-        
+        [HttpPost]
         public ActionResult Logout()
         {
             
@@ -73,10 +82,11 @@ namespace ProvidentUtility.Controllers
             var authManager = ctx.Authentication;
             //authManager.User.Claims.ToList().ForEach(claim => Context.Entry(claim).State =
             //                 System.Data.Entity.EntityState.Deleted);
-
-            //Context.SaveChanges();
-            HttpContext.User = new GenericPrincipal(new GenericIdentity(string.Empty), null);
-            authManager.SignOut("ApplicationCookie");
+            
+            System.Web.HttpContext.Current.GetOwinContext().Authentication.SignOut(
+            CookieAuthenticationDefaults.AuthenticationType,
+            OpenIdConnectAuthenticationDefaults.AuthenticationType);
+            authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
 
             Request.GetOwinContext().Authentication.SignOut();
             return RedirectToAction("Index", "Home");

@@ -9,6 +9,7 @@ using ProvidentUtility.Repositories;
 
 namespace ProvidentUtility.Controllers
 {
+    [Authorize]
     public class UserAccountsController : Controller
     {
         // GET: UserAccounts
