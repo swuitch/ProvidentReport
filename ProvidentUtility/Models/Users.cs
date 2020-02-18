@@ -17,5 +17,6 @@ namespace ProvidentUtility.Models
         public string email { get; set; }
         public string hub_name { get; set; }
         public string branch_name { get; set; }
+        public DateTime registration_date { get; set; }
     }
 }
