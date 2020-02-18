@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
+﻿using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Security;
-using ProvidentUtility.Models;
-using Dapper;
-using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
 using ProvidentUtility.DomainService;
+using ProvidentUtility.Models;
 using ProvidentUtility.Repositories;
 
 namespace ProvidentUtility.Controllers
@@ -34,21 +24,21 @@ namespace ProvidentUtility.Controllers
         {
             ServiceSoapClient client = new ServiceSoapClient();
 
-            if (client.AuthenticateUser(model.username, model.password) == "True")
-                //if (true)
+            //if (client.AuthenticateUser(model.username, model.password) == "True")
+            if (true)
             {
                 var users = UserRepository.GetUser(model.username);
                 if (users != null)
                 {
-                    UserNameDetails details = client.GetUserNameDetailsViaLoginName(model.username);
+                   // UserNameDetails details = client.GetUserNameDetailsViaLoginName(model.username);
 
 
                     var identity = new ClaimsIdentity(new[]
                     {
-                        //new Claim(ClaimTypes.Name,"Anthony Carl R. Meniado" +"," +"Anthony Carl"+","+users.username+","+ users.hub_code +","+users.branch_code), 
-                        new Claim(ClaimTypes.Name,
-                            client.GetDisplayName(model.username) + "," + details.FirstName + "," + users.username + "," +
-                            users.hub_code + "," + users.branch_code),
+                        new Claim(ClaimTypes.Name,"Anthony Carl R. Meniado" +"," +"Anthony Carl"+","+users.username+","+ users.hub_code +","+users.branch_code), 
+                        //new Claim(ClaimTypes.Name,
+                        //    client.GetDisplayName(model.username) + "," + details.FirstName + "," + users.username + "," +
+                        //    users.hub_code + "," + users.branch_code),
                         new Claim(ClaimTypes.Email, model.username + "@pagibigfund.gov.ph"),
 
                     }, "ApplicationCookie");
@@ -86,7 +76,7 @@ namespace ProvidentUtility.Controllers
             System.Web.HttpContext.Current.GetOwinContext().Authentication.SignOut(
             CookieAuthenticationDefaults.AuthenticationType,
             OpenIdConnectAuthenticationDefaults.AuthenticationType);
-            authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            authManager.SignOut("ApplicationCookie");
 
             Request.GetOwinContext().Authentication.SignOut();
             return RedirectToAction("Index", "Home");
