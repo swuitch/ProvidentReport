@@ -10,7 +10,7 @@
         table
                .clear()
                .draw();
-
+        $("#hub_code").trigger('change');
         table = $("#data-table").DataTable({
             destroy: true,
             "scrollY": "400px",
@@ -26,12 +26,11 @@
                     { "data": "hub_name" },
                     { "data": "branch_name"},
                     {
-                        "data": "username",
+                        "data": "id",
                         "width": "90px",
                         "render": function (data) {
-                            // '<button type="button" class="btn btn-danger fa fa-trash" onclick="remove(\'' + data + '\')"></button>';
-                            return '</button><button type="button" class="btn btn-default fa fa-edit" data-toggle="modal" data-target="#myModal" onclick="getbyID(\'' + data + '\')"> Edit</button> ' +
-                                '</button><button type="button" class="btn btn-default fa fa-print" onclick="generateQR(\'' + data + '\')"> Print</button> ';
+                            return '</button><button type="button" class="btn btn-default fa fa-edit" data-toggle="modal" data-target="#moal-view-pr" onclick="getUser(\'' + data + '\')"> <span>Edit</span></button> ' +
+                                '</button><button type="button" class="btn btn-default fa fa-print" onclick="removeUser(\'' + data + '\')"> Print</button> ';
 
                         }
                     }
@@ -41,8 +40,10 @@
                     buttons: [
                       {
                           text: "New User",
-                          action: function(e, dt, node, config) {
-                              //trigger the bootstrap modal
+                          action: function (e, dt, node, config) {
+                              $("#form").trigger('reset');
+                              $('#modal-title').text('New User');
+                              $('#modal-view-pr').modal('show');
                           }
                       }
                     ],
@@ -64,33 +65,121 @@
                 ],
 
                 "order": [[1, "asc"]]
-
-
+        });
     });
 
-        //set cutoff according on hub code
-        function FormatShortDate(value) {
-            var pattern = /Date\(([^)]+)\)/;
-            var results = pattern.exec(value);
-            var dt = new Date(parseFloat(results[1]));
-            var final_date = (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
-            if (final_date == '12/31/1110' || final_date == '12/31/0' || final_date == '1/1/1') {
-                return '';
-            } else {
-                return final_date;
-            }
-
+    function validate() {
+        var isValid = true;
+        if ($('#username').val().trim() == "") {
+            $('#username').css('border-color', 'Red');
+            isValid = false;
         }
+        else {
+            $('#username').css('border-color', 'lightgrey');
+        }
+        if ($('#hub_code').val().trim() == "") {
+            $('#hub_code').css('border-color', 'Red');
+            isValid = false;
+        }
+        else {
+            $('#hub_code').css('border-color', 'lightgrey');
+        }
+        if ($('#branch_code').val().trim() == -1) {
+            $('#branch_code').css('border-color', 'Red');
+            isValid = false;
+        }
+        else {
+            $('#branch_code').css('border-color', 'lightgrey');
+        }
+        return isValid;
+    }
 
+    function removeUser(id) {
+        var ans = confirm("Are you sure you want to delete this Record?");
+        if (ans) {
+            $.ajax({
+                url: "@Url.Action("Delete", "UserAccounts")" ,
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data:{'id':id},
+                success: function (result) {
+                    table.ajax.reload();
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+        }
+    }
+    function Add() {
+        var res = validate();
+        if (res == false) {
+            return false;
+        }
+        var _user = {
+            id:$('#id').val(),
+            username: $('#username').val(),
+            hub_code: $('#hub_code  ').val(),
+            branch_code: $('#branch_code').val()
+        };
+        $.ajax({
+            url: "@Url.Action("AddUpdate", "UserAccounts")",
+            data: JSON.stringify(_user),
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                table.ajax.reload();
+                $('#modal-view-pr').modal('hide');
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+    function GetBranch(hub_code) {
+        $.ajax({
+            url: "@Url.Action("getBranch", "UserAccounts")",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            data:{'hub_code':hub_code},
+            dataType: "json",
+            success: function (data) {
+                var s = '<option value="-1"> Please select</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].branch_code +'">' + data[i].branch_name + '</option>';
+                }
+                $("#branch_code").html(s);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
 
-       
+            }
+        });
+    }
 
-    
-       
-        
-   
-    });
-
+    function getUser(id) {
+        $.ajax({
+            url: "@Url.Action("Edit", "UserAccounts")",
+            typr: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            data: { 'id': id },
+            success: function (result) {
+                $('#id').val(result.id);
+                $('#username').val(result.username);
+                $('#hub_code').val(result.hub_code);
+                $('#branch_code').val(result.branch_code);
+                $('#modal-title').text("Edit");
+                $('#modal-view-pr').modal('show');
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+        return false;
+    }
 </script>
 
 @Scripts.Render("~/AdminLTE/plugins/datatables/script")

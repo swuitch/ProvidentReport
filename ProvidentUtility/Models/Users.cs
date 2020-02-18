@@ -8,6 +8,7 @@ namespace ProvidentUtility.Models
 {
     public class Users
     {
+        public int id { get; set; }
         public string fullname { get; set; }
         public string firstname { get; set; }
         public string username { get; set; }
@@ -17,5 +18,6 @@ namespace ProvidentUtility.Models
         public string email { get; set; }
         public string hub_name { get; set; }
         public string branch_name { get; set; }
+        public DateTime registration_date { get; set; }
     }
 }

@@ -14,9 +14,32 @@ namespace ProvidentUtility.Controllers
         // GET: UserAccounts
         public ActionResult Index()
         {
+            ViewBag.hub_code = new SelectList(OtherRepository.GetAllHub().OrderBy(a=>a.hub_name), "hub_code", "hub_name");
             return View();
         }
 
+        public ActionResult getBranch(string hub_code)
+        {
+            return Json(OtherRepository.GetAllBranches(hub_code).OrderBy(a=>a.branch_name), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult AddUpdate(Users usr)
+        {
+            if (usr.id ==0)
+            {
+                usr.registration_date = DateTime.Now;
+            }
+            return Json(UserRepository.AddUpdate(usr), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult Delete(int ID)
+        {
+            return Json(UserRepository.Delete(ID), JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult Edit(int id)
+        {
+            return Json(UserRepository.GetUserEdit(id), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public ActionResult UserData()
         {
