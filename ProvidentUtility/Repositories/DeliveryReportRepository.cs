@@ -128,75 +128,34 @@ namespace ProvidentUtility.Repositories
             }
         }
 
-        public static List<Employer> ReportHQPSLF132(string batchno)
+        public static List<Members> ReportHQPSLF132(string batchno)
         {
 
 
             using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
             {
-                List<Employer> data = new List<Employer>();
+                List<Members> data = new List<Members>();
                 db.Open();
                 try
                 {
-                    //if (data == null && search_status == true)
-                    //{
                     db.Query("set lockmode session where readlock=nolock");
                     if (batchno.Contains("ER"))
                     {
-                        data = db.Query<Employer>("select distinct a.pagibig_erid,a.batchno,a.pickdate,a.cutdate,a.pod_date,a.days_delay,a.unit_price,a.penalty, " +
-                                                     " b.description as delivery_status, " +
-                                                     " c.description as delivery_area, " +
-                                                     " d.eyeraddr as address , " +
-                                                     " d.eyername,e.branch_name,d.zipcode as zip_code from lo_stl_billing_recap a " +
-
-                                            " inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                            " inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
-                                            " inner join pf_employer_master d on d.employerid=a.employerid " +
-                                            " inner join hdmf_branches e on e.branch_code=a.branch_code " +
-                                            " where a.batchno=@batchno and a.status_code=10",
-                        new { batchno = batchno }).ToList();
+                        data = db.Query<Members>("select a.status_code,a.batchno,a.eyername as fname," +
+                                                  "b.branch_name, int2(0) as indiv_payor,a.eyeraddr as home_address,a.zipcode from lo_stl_billing_employer a " +
+                                                  "inner join hdmf_branches b on b.branch_code=a.branch_code " +
+                                                  "where batchno=@batchno and a.status_code=10",new {  batchno = batchno }).ToList();
                     }
                     else
                     {
-                        data = db.Query<Employer>("select distinct a.pagibigid,a.batchno,a.pickdate,a.cutdate,a.pod_date,a.days_delay,a.unit_price,a.penalty, " +
-                                                     " b.description as delivery_status, " +
-                                                     " c.description as delivery_area, " +
-                                                     " case when ifnull(f.hbur_no,'') = '' then " +
-                                                     "   ''  else  f.hbur_no +', '   end +  " +
-                                                     "   case when ifnull(f.house_no,'') = '' then  " +
-                                                     "   ''  else  f.house_no +', ' end +  " +
-                                                     "   case when ifnull(f.lot_no,'') = '' then  " +
-                                                     "   ''  else  'LOT '+f.lot_no + ', '   end + " +
-                                                     "   case when ifnull(f.block_no,'') = '' then  " +
-                                                     "   ''   else  'BLOCK '+f.block_no + ', '   end +  " +
-                                                     "   case when ifnull(f.phase_no,'') = '' then " +
-                                                     "   ''   else  'PHASE '+f.phase_no + ', '   end +  " +
-                                                     "   case when ifnull(f.bldg,'') = '' then  " +
-                                                     "   ''   else  f.bldg + ', '    end +   " +
-                                                     "   case when ifnull(f.street,'') = '' then  " +
-                                                     "   ''   else  f.street + ', '    end +  " +
-                                                     "   case when ifnull(f.subd,'') = '' then  " +
-                                                     "   ''   else  f.subd + ', '   end +   " +
-                                                     "   case when ifnull(f.brgy,'') = '' then  " +
-                                                     "   ''   else  f.brgy + ', '   end +  " +
-                                                     "   case when ifnull(f.zip_code,'') = '' then  " +
-                                                     "   ''   else  squeeze(f.zip_code) + ' '   end +  " +
-                                                     "   case when ifnull(f.city_municipality,'') = '' then  " +
-                                                     "   ''   else f.city_municipality  end +  " +
-                                                     "   case when ifnull(f.province,'') = '' then  " +
-                                                     "   ''   else ', ' + f.province  end as address, " +
-                                                    " d.fname + ' ' + d.mid + ' ' + d.lname + ' ' + d.name_ext as eyername,e.branch_name,f.zip_code from lo_stl_billing_recap a " +
-                                            " inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                            " inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
-                                            " inner join pf_member_master d on d.pagibigid=a.pagibigid " +
-                                            " inner join hdmf_branches e on e.branch_code=a.branch_code " +
-                                            "  left join pf_member_perm_address f on f.pagibigid = a.pagibigid and f.address_code=0  " +
-                                            " where a.batchno=@batchno and a.status_code=10",
-                        new { batchno = batchno }).ToList();
+                        data = db.Query<Members>("select a.lname,a.fname,a.mid,a.name_ext,e.branch_name,a.indiv_payor, " +
+                                                 " home_address,zipcode from lo_stl_billing_members a inner join hdmf_branches e on " +
+                                                 "e.branch_code=a.branch_code where  and a.status_code=10 and a.indiv_payor=1 and batchno=@batchno", 
+                                                 new {  batchno = batchno }).ToList();
                     }
-                    //}
                     db.Close();
                     db.Dispose();
+                
                 }
                 catch (Exception ex)
                 {
@@ -208,13 +167,13 @@ namespace ProvidentUtility.Repositories
 
         }
 
-        public static List<Employer> ReportHQPSLF131(string batchno)
+        public static List<Members> ReportHQPSLF131(string batchno)
         {
 
 
             using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
             {
-                List<Employer> data = new List<Employer>();
+                List<Members> data = new List<Members>();
                 db.Open();
                 try
                 {
@@ -223,33 +182,22 @@ namespace ProvidentUtility.Repositories
                     db.Query("set lockmode session where readlock=nolock");
                     if (batchno.Contains("ER"))
                     {
-                        data = db.Query<Employer>("select distinct a.pagibig_erid,a.batchno,a.pickdate,a.cutdate,a.pod_date,a.days_delay,a.unit_price,a.penalty, " +
-                                                     " b.description as delivery_status, " +
-                                                     " c.description as delivery_area, " +
-                                                     " d.eyername,e.branch_name from lo_stl_billing_recap a " +
-
-                                            " inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                            " inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
-                                            " inner join pf_employer_master d on d.employerid=a.employerid " +
-                                            " inner join hdmf_branches e on e.branch_code=a.branch_code " +
-                                            " where batchno=@batchno",
-                        new {  batchno = batchno }).ToList();
+                        data = db.Query<Members>("select a.status_code,a.area_code," +
+                                                  "a.pagibig_erid,a.batchno,a.pick_date," +
+                                                  "a.cutdate,a.pod_date,a.days_delay," +
+                                                  "a.unit_price,a.penalty,a.eyername as fname," +
+                                                  "b.branch_name, int2(0) as indiv_payor from lo_stl_billing_employer a " +
+                                                  "inner join hdmf_branches b on b.branch_code=a.branch_code " +
+                                                  "where batchno=@batchno",new {  batchno = batchno }).ToList();
                     }
                     else
                     {
-                        data = db.Query<Employer>("select distinct a.pagibigid,a.batchno,a.pickdate,a.cutdate,a.pod_date,a.days_delay,a.unit_price,a.penalty, " +
-                                                     " b.description as delivery_status, " +
-                                                     " c.description as delivery_area, " +
-                                                     " d.fname + ' ' + d.mid + ' ' + d.lname + ' ' + d.name_ext as eyername,e.branch_name from lo_stl_billing_recap a " +
-
-                                            " inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                            " inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
-                                            " inner join pf_member_master d on d.pagibigid=a.pagibigid " +
-                                            " inner join hdmf_branches e on e.branch_code=a.branch_code " +
-                                            " where batchno=@batchno",
-                        new {  batchno = batchno }).ToList();
+                        data = db.Query<Members>("select a.lname,a.fname,a.mid,a.name_ext, a.pagibigid,a.batchno,a.pick_date,a.cutdate,a.pod_date, " +
+                                                 "a.days_delay,a.unit_price,a.penalty,e.branch_name,a.indiv_payor " +
+                                                 "from lo_stl_billing_members a inner join hdmf_branches e on " +
+                                                 "e.branch_code=a.branch_code where a.indiv_payor=1 and batchno=@batchno", 
+                                                 new {  batchno = batchno }).ToList();
                     }
-                    //}
                     db.Close();
                     db.Dispose();
                 }

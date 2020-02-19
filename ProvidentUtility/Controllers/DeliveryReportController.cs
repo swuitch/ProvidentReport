@@ -9,6 +9,7 @@ using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using OfficeOpenXml;
 using ProvidentUtility.Models;
+using ProvidentUtility.Reports;
 using ProvidentUtility.Repositories;
 
 namespace ProvidentUtility.Controllers
@@ -56,10 +57,10 @@ namespace ProvidentUtility.Controllers
 
         public FileStreamResult PrintHQPSLF131(string batchno)
         {
-
-            List<Employer> lst = DeliveryReportRepository.ReportHQPSLF131(batchno).OrderBy(b => b.eyername).ToList();
+            
+            List<Members> lst = DeliveryReportRepository.ReportHQPSLF131(batchno).OrderBy(b => b.fname).ToList();
             ReportDocument rd = new ReportDocument();
-            rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQPSLF131.rpt"));
+            rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQP-SLF_131.rpt"));
             rd.SetDataSource(lst);
 
 
@@ -70,6 +71,7 @@ namespace ProvidentUtility.Controllers
             Stream stream = rd.ExportToStream(ExportFormatType.PortableDocFormat);
             stream.Seek(0, SeekOrigin.Begin);
 
+
             rd.Dispose();
             return new FileStreamResult(stream, "application/pdf");
         }
@@ -78,10 +80,10 @@ namespace ProvidentUtility.Controllers
         public FileStreamResult PrintHQPSLF132(string batchno)
         {
 
-            List<Employer> lst = DeliveryReportRepository.ReportHQPSLF132(batchno);
+            List<Members> lst = DeliveryReportRepository.ReportHQPSLF132(batchno);
             
             ReportDocument rd = new ReportDocument();
-            rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQPSLF132.rpt"));
+            rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQP_SLF_132.rpt"));
             rd.SetDataSource(lst);
 
 
@@ -99,7 +101,6 @@ namespace ProvidentUtility.Controllers
         {
 
             List<Employer> lst = DeliveryReportRepository.ReportHQPSLF133(batchno);
-            //DbContexC:\Users\Anthony\Documents\GitHub\ReportUtility\ReportUtility\Controllers\DeliveryReportController.cst.hub_code = Session["HubCode"].ToString();
             ReportDocument rd = new ReportDocument();
             rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQPSLF133.rpt"));
             rd.SetDataSource(lst);
@@ -172,7 +173,7 @@ namespace ProvidentUtility.Controllers
 
 
                     }
-
+                    var t = lst.ToList();
                     List<Employer> result = (from c in lst
                                           group c by new { c.batchno, c.trackno,c.pod_date,c.status_code,c.area_code,c.pagibig_erid,c.pick_date }
                                               into g

@@ -16,14 +16,14 @@ namespace ProvidentUtility.Reports {
     using CrystalDecisions.CrystalReports.Engine;
     
     
-    public class HQPSLF131 : ReportClass {
+    public class HQP_SLF_131 : ReportClass {
         
-        public HQPSLF131() {
+        public HQP_SLF_131() {
         }
         
         public override string ResourceName {
             get {
-                return "HQPSLF131.rpt";
+                return "HQP-SLF_131.rpt";
             }
             set {
                 // Do nothing
@@ -41,7 +41,7 @@ namespace ProvidentUtility.Reports {
         
         public override string FullResourceName {
             get {
-                return "ProvidentUtility.Reports.HQPSLF131.rpt";
+                return "ProvidentUtility.Reports.HQP-SLF_131.rpt";
             }
             set {
                 // Do nothing
@@ -122,9 +122,9 @@ namespace ProvidentUtility.Reports {
     }
     
     [System.Drawing.ToolboxBitmapAttribute(typeof(CrystalDecisions.Shared.ExportOptions), "report.bmp")]
-    public class CachedHQPSLF131 : Component, ICachedReport {
+    public class CachedHQP_SLF_131 : Component, ICachedReport {
         
-        public CachedHQPSLF131() {
+        public CachedHQP_SLF_131() {
         }
         
         [Browsable(false)]
@@ -161,7 +161,7 @@ namespace ProvidentUtility.Reports {
         }
         
         public virtual CrystalDecisions.CrystalReports.Engine.ReportDocument CreateReport() {
-            HQPSLF131 rpt = new HQPSLF131();
+            HQP_SLF_131 rpt = new HQP_SLF_131();
             rpt.Site = this.Site;
             return rpt;
         }
