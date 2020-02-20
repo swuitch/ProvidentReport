@@ -30,16 +30,15 @@ namespace ProvidentUtility.Repositories
 
                     if (batchno.Contains("ER"))
                     {
-                        var output = db.Query<Employer>("select a.area_code,c.description,a.status_code, " +
-                                                        "a.trackno,e.branch_name,a.cutdate, " +
-                                                        "a.unit_price,a.penalty,a.days_delay, " +
-                                                        "f.hub_name, a.num_envelope as num " +
+                        var output = db.Query<Employer>("select a.batchno,a.status_code,a.area_code,a.trackno,e.branch_name," +
+                                                        "a.cutdate,a.unit_price,a.penalty," +
+                                                        "a.days_delay,f.hub_name,a.num_envelope as num " +
                                                         "from lo_stl_billing_employer a " +
-                                                        "inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                                        "inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
                                                         "inner join hdmf_branches e on e.branch_code=a.branch_code " +
                                                         "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
-                                                        "where  a.batchno=@batchno", new {  batchno = batchno }).ToList();
+                                                        "where ifnull(batchno,'')<>'' and batchno=@batchno" +
+                                                        "order by a.status_code", 
+                                                        new {  batchno = batchno }).ToList();
 
                         foreach (var item in output.OrderBy(a => a.status_code).ToList())
                         {
@@ -72,17 +71,16 @@ namespace ProvidentUtility.Repositories
                     }
                     else
                     {
-                        var output = db.Query<Employer>("select a.delivery_area,a.status_code,a.trackno,a.branch_name,a.cutdate,a.unit_price,a.penalty,sum(a.days_delay) as days_delay,count(*) as num,a.hub_name from " +
-                                                             " (select distinct a.applno,a.pagibigid,f.hub_name,a.trackno, a.batchno,a.pickdate,a.cutdate,a.pod_date, " +
-                                                             " a.days_delay,a.unit_price,a.penalty,b.description as delivery_status, " +
-                                                             " c.description as delivery_area,d.pagibigid,e.branch_name,a.status_code from lo_stl_billing_recap a " +
-                                                    " inner join lo_stl_billing_delivery_status b on b.status_code=a.status_code " +
-                                                    " inner join lo_stl_billing_delivery_area c on c.area_code=a.area_code " +
-                                                    " inner join pf_member_master d on d.pagibigid=a.pagibigid " +
-                                                    " inner join hdmf_branches e on e.branch_code=a.branch_code " +
-                                                     " inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
-                                                    " where  batchno=@batchno) a  " +
-                                                    " group by a.trackno,a.branch_name,a.cutdate,a.unit_price,a.status_code,a.penalty,a.hub_name,a.delivery_area ", new { batchno = batchno }).ToList();
+                        var output = db.Query<Employer>("select a.penalty,a.trackno,a.batchno,a.status_code," +
+                                                        "a.area_code,e.branch_name,a.cutdate," +
+                                                        "a.unit_price,f.hub_name,count(*) as num " +
+                                                        "from lo_stl_billing_members a " +
+                                                        "inner join hdmf_branches e on e.branch_code=a.branch_code " +
+                                                        "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
+                                                        "where indiv_payor=1  and batchno=@batchno " +
+                                                        "group by a.penalty,a.trackno,a.status_code," +
+                                                        "a.area_code,e.branch_name,a.cutdate," +
+                                                        "a.unit_price,f.hub_name,a.batchno order by a.status_code", new { batchno = batchno }).ToList();
 
 
                         foreach (var item in output)
