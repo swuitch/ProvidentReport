@@ -121,7 +121,7 @@ namespace ProvidentUtility.Controllers
         public FileStreamResult PrintHQPSLF134(string batchno)
         {
 
-            List<Employer> lst = DeliveryReportRepository.ReportHQPSLF133(batchno).OrderBy(b => b.branch_name).ToList();
+            List<Employer> lst = DeliveryReportRepository.ReportHQPSLF134(batchno).OrderBy(b => b.branch_name).ToList();
             //DbContexC:\Users\Anthony\Documents\GitHub\ReportUtility\ReportUtility\Controllers\DeliveryReportController.cst.hub_code = Session["HubCode"].ToString();
             ReportDocument rd = new ReportDocument();
             rd.Load(Path.Combine(Server.MapPath("~/Reports"), "HQPSLF134.rpt"));
@@ -149,7 +149,17 @@ namespace ProvidentUtility.Controllers
             {
                 using (var package = new ExcelPackage(stream))
                 {
+                    List<string> ColumnNames = new List<string>();
+                    foreach (ExcelWorksheet worksheet1 in package.Workbook.Worksheets)
+                    {
 
+                        for (int i = 1; i <= worksheet1.Dimension.End.Column; i++)
+                        {
+                            ColumnNames.Add(worksheet1.Cells[1, i].Value.ToString()); // 1 = First Row, i = Column Number
+                        }
+
+                    }
+                    var a = ColumnNames.FindIndex(x => x.StartsWith("BATCHNAME"));
                     //get the first worksheet in the workbook
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
                     int colCount = worksheet.Dimension.End.Column;  //get Column Count
@@ -160,14 +170,14 @@ namespace ProvidentUtility.Controllers
                     {
                         lst.Add(new Employer
                         {
-                            batchno = worksheet.Cells[i, 24].Value.ToString(),//24
-                            trackno = worksheet.Cells[i, 3].Value.ToString(),
-                            pick_date = Convert.ToDateTime(worksheet.Cells[i, 5].Value),
-                            pod_date = Convert.ToDateTime(worksheet.Cells[i, 15].Value),
-                            status_code = Convert.ToInt32(worksheet.Cells[i, 16].Value),
-                            area_code = Convert.ToInt32(worksheet.Cells[i, 18].Value),
-                            branch_code = worksheet.Cells[i, 20].Value.ToString(),
-                            pagibig_erid = (string) worksheet.Cells[i, 22].Value,
+                            batchno = worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("BATCH"))+1].Value.ToString(),//24
+                            trackno = worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("TRACKNO"))+1].Value.ToString(),
+                            pick_date = Convert.ToDateTime(worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("PICK_DATE")) + 1].Value),
+                            pod_date = Convert.ToDateTime(worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("POD_DATE")) + 1].Value),
+                            status_code = Convert.ToInt32(worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("STATUS")) + 1].Value),
+                            area_code = Convert.ToInt32(worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("DEL_AREA")) + 1].Value),
+                            branch_code = worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("BRANCH_COD")) + 1].Value.ToString(),
+                            pagibig_erid = (string)worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("PAGIBIG_ER")) + 1].Value,
                             //num_envelope = Convert.ToInt32(worksheet.Cells[i, 33].Value),
                         });
 

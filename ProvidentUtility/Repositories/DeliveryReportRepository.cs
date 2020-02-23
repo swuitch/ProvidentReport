@@ -14,6 +14,119 @@ namespace ProvidentUtility.Repositories
         private static ObjectCache _cache = MemoryCache.Default;
         private object _lock = new object();
 
+
+
+        public static List<Employer> ReportHQPSLF134(string batchno)
+        {
+
+
+            using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
+            {
+                List<Employer> data = new List<Employer>();
+                db.Open();
+                try
+                {
+                    //if (data == null && search_status == true)
+                    //{
+                    db.Query("set lockmode session where readlock=nolock");
+
+                    if (batchno.Contains("ER"))
+                    {
+                        var output = db.Query<Employer>("select e.branch_name,f.hub_name,a.trackno, " +
+                                                        "a.cutdate,a.num_envelope as num,a.batchno, " +
+                                                        "a.unit_price,a.penalty,a.status_code,a.area_code," +
+                                                        "a.days_delay " +
+                                                        "from lo_stl_billing_employer a " +
+                                                        "inner join hdmf_branches e on e.branch_code=a.branch_code " +
+                                                        "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
+                                                        "where batchno=@batchno",
+                                                        new { batchno = batchno }).ToList();
+
+                        foreach (var item in output.OrderBy(a => a.status_code).ToList())
+                        {
+                            var abc = data.ToList();
+                            var c = data.Where(b => b.branch_name == item.branch_name && b.area_code == item.area_code).SingleOrDefault();
+                            if (c == null)
+                            {
+                                data.Add(new Employer()
+                                {
+
+                                    hub_name = item.hub_name,
+                                    trackno = item.trackno,
+                                    branch_name = item.branch_name,
+                                    area_code = item.area_code,
+                                    cutdate = item.cutdate,
+                                    days_delay = item.days_delay,
+                                    unit_price = item.unit_price,
+                                    penalty = item.penalty,
+                                    num = (item.status_code == 9) ? item.num : 0,
+                                    rts = (item.status_code == 10) ? item.num : 0
+                                });
+                            }
+                            else
+                            {
+                                c.num = (item.status_code == 9) ? item.num + c.num : c.num;
+                                c.rts = (item.status_code == 10) ? c.rts + item.num : 0;
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        var output = db.Query<Employer>("select a.penalty,a.trackno,a.batchno,a.status_code," +
+                                                        "a.area_code,e.branch_name,a.cutdate," +
+                                                        "a.unit_price,f.hub_name,count(*) as num " +
+                                                        "from lo_stl_billing_members a " +
+                                                        "inner join hdmf_branches e on e.branch_code=a.branch_code " +
+                                                        "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
+                                                        "where indiv_payor=1  and batchno=@batchno " +
+                                                        "group by a.penalty,a.trackno,a.status_code," +
+                                                        "a.area_code,e.branch_name,a.cutdate," +
+                                                        "a.unit_price,f.hub_name,a.batchno order by a.status_code", new { batchno = batchno }).ToList();
+
+
+                        foreach (var item in output)
+                        {
+                            var c = data.Where(b => b.branch_name == item.branch_name && b.area_code == item.area_code).SingleOrDefault();
+                            if (c == null)
+                            {
+                                data.Add(new Employer()
+                                {
+
+                                    hub_name = item.hub_name,
+                                    trackno = item.trackno,
+                                    branch_name = item.branch_name,
+                                    area_code = item.area_code,
+                                    cutdate = item.cutdate,
+                                    days_delay = item.days_delay,
+                                    unit_price = item.unit_price,
+                                    penalty = item.penalty,
+                                    num = (item.status_code == 9) ? item.num : 0,
+                                    rts = (item.status_code == 10) ? item.num : 0
+                                });
+                            }
+                            else
+                            {
+                                c.num = (item.status_code == 9) ? item.num : c.num;
+                                c.rts = (item.status_code == 10) ? item.num : 0;
+                            }
+                        }
+
+                    }
+
+
+
+
+                    db.Close();
+                    db.Dispose();
+                }
+                catch (Exception ex)
+                {
+
+                }
+                return data;
+            }
+        }
         public static List<Employer> ReportHQPSLF133(string batchno)
         {
 
@@ -36,7 +149,7 @@ namespace ProvidentUtility.Repositories
                                                         "from lo_stl_billing_employer a " +
                                                         "inner join hdmf_branches e on e.branch_code=a.branch_code " +
                                                         "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
-                                                        "where ifnull(batchno,'')<>'' and batchno=@batchno" +
+                                                        "where batchno=@batchno" +
                                                         "order by a.status_code", 
                                                         new {  batchno = batchno }).ToList();
 
