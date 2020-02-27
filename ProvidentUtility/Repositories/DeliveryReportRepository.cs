@@ -149,9 +149,7 @@ namespace ProvidentUtility.Repositories
                                                         "from lo_stl_billing_employer a " +
                                                         "inner join hdmf_branches e on e.branch_code=a.branch_code " +
                                                         "inner join hdmf_hub_master f on f.hub_code=a.hub_code " +
-                                                        "where batchno=@batchno" +
-                                                        "order by a.status_code", 
-                                                        new {  batchno = batchno }).ToList();
+                                                        "where batchno=@batchno ",new {  batchno = batchno }).ToList();
 
                         foreach (var item in output.OrderBy(a => a.status_code).ToList())
                         {
@@ -259,9 +257,9 @@ namespace ProvidentUtility.Repositories
                     }
                     else
                     {
-                        data = db.Query<Members>("select a.lname,a.fname,a.mid,a.name_ext,e.branch_name,a.indiv_payor, " +
-                                                 " home_address,zipcode from lo_stl_billing_members a inner join hdmf_branches e on " +
-                                                 "e.branch_code=a.branch_code where  and a.status_code=10 and a.indiv_payor=1 and batchno=@batchno", 
+                        data = db.Query<Members>("select a.lname,a.fname,a.mid,a.name_ext,e.branch_name," +
+                                                 " home_address,int2(1) as indiv_payor,a.zipcode from lo_stl_billing_members a inner join hdmf_branches e on " +
+                                                 "e.branch_code=a.branch_code where   a.status_code=10 and a.indiv_payor=1 and batchno=@batchno", 
                                                  new {  batchno = batchno }).ToList();
                     }
                     db.Close();
@@ -322,6 +320,45 @@ namespace ProvidentUtility.Repositories
 
         }
 
+
+        public static List<Members> GetIPDeliveryReport(string hub_code)
+        {
+
+
+            using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
+            {
+                List<Members> data = new List<Members>();
+                db.Open();
+                try
+                {
+                    var key = "batchno" + hub_code;
+
+                    // Try to get the object from the cache
+                    //data = _cache[key] as List<Employer>;
+                    //if (data == null)
+                    //{
+                    db.Query("set lockmode session where readlock=nolock");
+                    data = db.Query<Members>("select batchno,count(*) as num_envelope " +
+                                              "from lo_stl_billing_members " +
+                                              "where  ifnull(batchno,'')<>'' and indiv_payor=1 " +
+                                              "group by batchno").ToList();
+                    // _cache.Set(key, data, DateTimeOffset.Now.AddMinutes(1));
+                    // }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                db.Close();
+                db.Dispose();
+                return data;
+            }
+
+
+        }
+
+
         public static List<Employer> GetDeliveryReport(string hub_code)
         {
 
@@ -360,60 +397,99 @@ namespace ProvidentUtility.Repositories
         }
 
 
-        public static int UpdateEmployer(List<Employer> ds)
+        public static int UpdateEmployerMembers(List<Employer> ds)
         {
            
             using (var db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
             {
+                string employer = null;
                 db.Open();
-                //if (exist.Equals(0) && ds.First().batchno.Contains("ER"))
-                //{
-
-                    string employer = "update lo_stl_billing_employer " +
-                                          " set batchno=@batchno, pod_date=@pod_date,status_code=@status_code,area_code=@area_code," +
+                if (ds.FirstOrDefault().batchno.Equals("ER"))
+                {
+                    employer = "update lo_stl_billing_employer " +
+                                      " set batchno=@batchno, pod_date=@pod_date,status_code=@status_code,area_code=@area_code," +
                                       "num_envelope=@num_envelope,unit_price=@unit_price,days_delay=@days_delay,penalty=@penalty " +
-                                          " where trackno=@trackno and pagibig_erid=@pagibig_erid";
-
+                                      " where trackno=@trackno and pagibig_erid=@pagibig_erid";
+                }
+                else
+                {
+                    employer = "update lo_stl_billing_members " +
+                                      " set batchno=@batchno, pod_date=@pod_date,status_code=@status_code,area_code=@area_code," +
+                                      "num_envelope=@num_envelope,unit_price=@unit_price,days_delay=@days_delay,penalty=@penalty " +
+                                      " where trackno=@trackno and pagibigid=@pagibigid and indiv_payor=1";
+                }
                 List<Area> area = db.Query<Area>("select * from lo_stl_billing_delivery_area").ToList();
-                var to_update = (from c in ds
-                    join d in area on c.area_code equals d.area_code
-                    let unit_price = d.er_price
-                    let days_delay = (c.pod_date - c.pick_date).TotalDays-(+d.delivery_days + d.grace_period)
-                    let penalty = unit_price*days_delay*d.penalty_rate
-                    select new
-                    {
-                        c.num_envelope,
-                        c.area_code,
-                        c.batchno,
-                        c.trackno,
-                        c.pagibig_erid,
-                        c.pod_date,
-                        c.status_code,
-                        unit_price,
-                        days_delay,
-                        penalty,
-                        c.pick_date
-                    }).ToList();
-                db.Query("set lockmode session where readlock=nolock");
-                db.Execute(employer, to_update);
+                if (ds.FirstOrDefault().batchno.Equals("ER"))
+                {
+
+                    var to_update = (from c in ds
+                        join d in area on c.area_code equals d.area_code
+                        let unit_price = d.er_price
+                        let days_delay = (c.pod_date - c.pick_date).TotalDays - (+d.delivery_days + d.grace_period)
+                        let penalty = unit_price*days_delay*d.penalty_rate
+                        select new
+                        {
+                            c.num_envelope,
+                            c.area_code,
+                            c.batchno,
+                            c.trackno,
+                            c.pagibig_erid,
+                            c.pagibigid,
+                            c.pod_date,
+                            c.status_code,
+                            unit_price,
+                            days_delay,
+                            penalty,
+                            c.pick_date
+                        }).ToList();
+                    db.Query("set lockmode session where readlock=nolock");
+                    db.Execute(employer, to_update);
+                }
+                else
+                {
+
+                    var to_update = (from c in ds
+                                     join d in area on c.area_code equals d.area_code
+                                     let unit_price = d.ip_price
+                                     let days_delay = (c.pod_date - c.pick_date).TotalDays - (+d.delivery_days + d.grace_period)
+                                     let penalty = unit_price * days_delay * d.penalty_rate
+                                     select new
+                                     {
+                                         c.num_envelope,
+                                         c.area_code,
+                                         c.batchno,
+                                         c.trackno,
+                                         c.pagibig_erid,
+                                         c.pagibigid,
+                                         c.pod_date,
+                                         c.status_code,
+                                         unit_price,
+                                         days_delay,
+                                         penalty,
+                                         c.pick_date
+                                     }).ToList();
+                    db.Query("set lockmode session where readlock=nolock");
+                    db.Execute(employer, to_update);
+                }
+
 
                 var batchno = ds.Select(a => a.batchno).FirstOrDefault();
-                Employer result= db.Query<Employer>("select sum(num_envelope) as num from lo_stl_billing_employer " +
-                         "where batchno=@batchno", new {batchno =batchno }).SingleOrDefault();
-                
-                //}
-                //else
-                //{
-
-                //    string ip = "update lo_stl_billing_recap " +
-                //                          " set batchno=@batchno, pod_date=@pod_date,status_code=@status_code,area_code=@area_code " +
-                //                          " where trackno=@trackno and pagibigid=@pagibigid";
-
-
-                //    db.Execute(ip, ds);
-                //}
-                db.Dispose();
-                return  Convert.ToInt32(result.num);
+                if (ds.FirstOrDefault().batchno.Equals("ER"))
+                {
+                    Employer result =
+                        db.Query<Employer>("select sum(num_envelope) as num from lo_stl_billing_employer " +
+                                           "where batchno=@batchno", new {batchno = batchno}).SingleOrDefault();
+                    db.Dispose();
+                    return Convert.ToInt32(result.num);
+                }
+                else
+                {
+                    Employer result =
+                        db.Query<Employer>("select sum(num_envelope) as num from lo_stl_billing_members " +
+                                           "where batchno=@batchno", new { batchno = batchno }).SingleOrDefault();
+                    db.Dispose();
+                    return Convert.ToInt32(result.num);
+                }
             }
         }
     }

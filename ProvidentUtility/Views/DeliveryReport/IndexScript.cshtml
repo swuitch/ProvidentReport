@@ -1,11 +1,21 @@
 ﻿<script type="text/javascript">
+    var er;
+    var ip;
     $(document).ready(function () {
         $('#loading').hide();
-        var table = $("#data-table").DataTable({
+        er = $("#data-table-er").DataTable({
             "lengthChange": false,
             "searching": false,
         });
-        table
+        er
+            .clear()
+            .draw();
+
+        ip = $("#data-table-ip").DataTable({
+            "lengthChange": false,
+            "searching": false,
+        });
+        ip
             .clear()
             .draw();
         var tableupload = $("#data-table-upload").DataTable({
@@ -15,10 +25,65 @@
         tableupload
             .clear()
             .draw();
-        loadData();
-        function loadData() {
+        load_er();
+        load_ip();
+        function load_ip() {
 
-            table = $("#data-table").DataTable({
+            table = $("#data-table-ip").DataTable({
+                destroy: true,
+                //"processing": true,
+                //"serverSide": true,
+                //"stateSave": true,
+                "scrollY": "400px",
+                "ajax": {
+                    "url": "@Url.Action("GetIP", "DeliveryReport")",
+                "type": "GET",
+                "datatype": "application/json",
+            },
+
+                "lengthChange": false,
+                "searching": false,
+
+                "columns": [
+                    {
+                        data: function(data) {
+                            //return '<button type="button" class="btn btn-default fa fa-edit" data-toggle="modal" data-target="#myModal" onclick="getbyID(\'' + data.supplycode + '\')"></button>';
+
+                            var a = '<label>' + data.batchno + '</label><br />';
+                            //a += '<label>' + data.pod_date + '</label><br />';
+                            return a;
+                        }
+                    },
+                    { "data": "num_envelope" },
+                    {
+                        "data": function (data, type, dataToSet) {
+                            var res;
+                            res = '<div class="dropdown pull-right">' +
+                                '<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Print ' +
+                                '<span class="caret"></span></button>' +
+                                '<ul class="dropdown-menu" >' +
+                                '<li><a href="#" onclick="HQPSLF131(\'' + data.batchno + '\')">List Of Transmitted Mails By Service Provider</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF132(\'' + data.batchno + '\')">List Of Return to Sender Mails</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF133(\'' + data.batchno + '\')">Service Fee Computation Sheet</a></li>' +
+                                '<li><a href="#" onclick="HQPSLF134(\'' + data.batchno + '\')">Summary of Service Fee Compuatation Sheet</a></li> ' +
+                                '</ul>  </div>';
+
+                            return res;
+                        }
+                    }
+                    //{ "data": "num" }
+                ],
+                "order": [[0, "asc"]]
+
+
+
+
+        });
+
+    }
+        function load_er() {
+
+            table = $("#data-table-er").DataTable({
                 destroy: true,
                 //"processing": true,
                 //"serverSide": true,
@@ -87,9 +152,11 @@
         }
         // reload data 
         $("a[href='#tab_1-1']").on('shown.bs.tab', function (e) {
-            loadData();
+            load_er();
         });
-
+        $("a[href='#tab_1-2']").on('shown.bs.tab', function (e) {
+            load_ip();
+        });
         $('#btnbrowse').on('click', function (e) {
             
             $('#fileUpload').trigger('click');
@@ -145,11 +212,11 @@
                             { "data": "num" }
                         ],
                         "columnDefs": [
-                                {
-                                    "targets": [ 5 ],
-                                    "visible": false,
-                                    "searchable": false
-                                }
+                            {
+                                "targets": [ 5 ],
+                                "visible": false,
+                                "searchable": false
+                            }
                                 
                         ],
                         "footerCallback": function ( row, result, start, end, display ) {
@@ -197,8 +264,8 @@
 
                 }
                 
+            });
         });
-    });
 
     });
 

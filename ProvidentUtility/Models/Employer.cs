@@ -41,6 +41,7 @@ namespace ProvidentUtility.Models
         public int num { get; set; }
         public int rts { get; set; }
         public int numbers { get; set; }
+        public string pagibigid { get; set; }
         
     }
 }

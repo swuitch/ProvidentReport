@@ -55,6 +55,38 @@ namespace ProvidentUtility.Controllers
 
         }
 
+
+        public ActionResult GetIP()
+        {
+
+            //var draw = Request.Form.GetValues("draw").FirstOrDefault();
+            //var start = Request.Form.GetValues("start").FirstOrDefault();
+            //var length = Request.Form.GetValues("length").FirstOrDefault();
+            //List<Employer> emp = new List<Employer>();
+
+
+            //int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            //int skip = start != null ? Convert.ToInt32(start) : 0;
+            //int recordsTotal = 0;
+
+            Users usr = UserRepository.Details(User.Identity.Name);
+
+            var rec = DeliveryReportRepository.GetIPDeliveryReport(usr.hub_code);
+            var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue, RecursionLimit = 100 };
+            return new ContentResult()
+            {
+                Content = serializer.Serialize(new { data = rec }),
+                ContentType = "json",
+            };
+
+            //var data = rec.Skip(skip).Take(pageSize).ToList();
+            ////var a = ws.GetEmployers(from_date, to_date, Session["HubCode"].ToString());
+            //recordsTotal = rec.Count();
+            //var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue, RecursionLimit = 100 };
+            //return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data.OrderBy(a => a.batchno) }, JsonRequestBehavior.AllowGet);
+
+
+        }
         public FileStreamResult PrintHQPSLF131(string batchno)
         {
             
@@ -159,7 +191,7 @@ namespace ProvidentUtility.Controllers
                         }
 
                     }
-                    var a = ColumnNames.FindIndex(x => x.StartsWith("BATCHNAME"));
+                    var batch = ColumnNames.FindIndex(x => x.Equals("BATCH"));
                     //get the first worksheet in the workbook
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
                     int colCount = worksheet.Dimension.End.Column;  //get Column Count
@@ -178,14 +210,14 @@ namespace ProvidentUtility.Controllers
                             area_code = Convert.ToInt32(worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("DEL_AREA")) + 1].Value),
                             branch_code = worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("BRANCH_COD")) + 1].Value.ToString(),
                             pagibig_erid = (string)worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("PAGIBIG_ER")) + 1].Value,
-                            //num_envelope = Convert.ToInt32(worksheet.Cells[i, 33].Value),
+                            pagibigid = (string)worksheet.Cells[i, ColumnNames.FindIndex(x => x.Equals("PAGIBIGID")) + 1].Value,
                         });
 
 
                     }
                     var t = lst.ToList();
                     List<Employer> result = (from c in lst
-                                          group c by new { c.batchno, c.trackno,c.pod_date,c.status_code,c.area_code,c.pagibig_erid,c.pick_date }
+                                          group c by new { c.batchno, c.trackno,c.pod_date,c.status_code,c.area_code,c.pagibig_erid,c.pick_date,c.pagibigid }
                                               into g
                                               select new Employer()
                                               {
@@ -196,11 +228,12 @@ namespace ProvidentUtility.Controllers
                                                   status_code = g.Key.status_code,
                                                   area_code = g.Key.area_code,
                                                   pagibig_erid = g.Key.pagibig_erid,
+                                                  pagibigid =g.Key.pagibigid,
                                                   num_envelope = g.Count()
 
                                               }).ToList();
                     //DbContext.testc(lst);
-                    int num =DeliveryReportRepository.UpdateEmployer(result);
+                    int num =DeliveryReportRepository.UpdateEmployerMembers(result);
                     result.ToList().ForEach(c => c.num = num);
                     var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue, RecursionLimit = 100 };
                     return new ContentResult()
