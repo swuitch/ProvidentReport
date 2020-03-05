@@ -33,9 +33,10 @@ namespace ProvidentUtility.Controllers
             return Json(UserRepository.AddUpdate(usr), JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult Delete(int ID)
+        
+        public JsonResult Remove(int id)
         {
-            return Json(UserRepository.Delete(ID), JsonRequestBehavior.AllowGet);
+            return Json(UserRepository.Remove(id), JsonRequestBehavior.AllowGet);
         }
         public JsonResult Edit(int id)
         {

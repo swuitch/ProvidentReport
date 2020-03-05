@@ -84,7 +84,7 @@ namespace ProvidentUtility.Repositories
             return "Ok";
         }
 
-        public static string Delete(int id)
+        public static string Remove(int id)
         {
             using (IngresConnection db = new IngresConnection(ConfigurationManager.ConnectionStrings["pfmdb"].ConnectionString))
             {
